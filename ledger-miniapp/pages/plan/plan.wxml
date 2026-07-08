@@ -1,0 +1,47 @@
+<view class="wrap {{theme === 'dark' ? 'theme-dark' : ''}}">
+  <!-- 进行中的计划 -->
+  <view class="section" wx:if="{{plans.length > 0}}">
+    <text class="section-title">我的存钱计划</text>
+    <view class="plan-list">
+      <view class="plan-card" wx:for="{{plans}}" wx:key="id" bindtap="goPlanDetail" data-methodid="{{item.methodId}}" data-planid="{{item.id}}">
+        <view class="pc-icon" style="background:{{item.methodColor || '#FF9800'}}">
+          <text>{{item.methodIcon || '💰'}}</text>
+        </view>
+        <view class="pc-info">
+          <text class="pc-name">{{item.name || item.title || item.methodTitle}}</text>
+          <text class="pc-sub">{{item.methodTitle}} · {{item.savedDisp}} / {{item.totalDisp}}</text>
+          <view class="pc-bar"><view class="pc-fill" style="width:{{item.percent}}%"></view></view>
+        </view>
+        <text class="pc-arrow">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{plans.length === 0}}">
+    <text class="empty-icon">🏆</text>
+    <text class="empty-title">还没有存钱计划</text>
+    <text class="empty-desc">点击下方 + 按钮创建你的第一个存钱计划</text>
+  </view>
+
+  <!-- 浮动 + 按钮 -->
+  <view class="fab" bindtap="toggleMethodPicker">+</view>
+
+  <!-- 方法选择面板 -->
+  <view class="picker-mask" wx:if="{{showMethodPicker}}" catchtap="toggleMethodPicker"></view>
+  <view class="picker-panel {{showMethodPicker ? 'pp-show' : ''}}">
+    <text class="pp-title">选择存钱方法</text>
+    <view class="method-list">
+      <view class="method-card" wx:for="{{methods}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+        <view class="method-icon" style="background: {{item.color}}">
+          <text>{{item.icon}}</text>
+        </view>
+        <view class="method-info">
+          <text class="method-title">{{item.title}}</text>
+          <text class="method-desc">{{item.desc}}</text>
+        </view>
+        <text class="method-arrow">›</text>
+      </view>
+    </view>
+  </view>
+</view>

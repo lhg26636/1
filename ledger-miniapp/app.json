@@ -1,0 +1,56 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/add/add",
+    "pages/statistics/statistics",
+    "pages/settings/settings",
+    "pages/plan/plan",
+    "pages/plan-detail/plan-detail",
+    "pages/calendar/calendar"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2E7D32",
+    "navigationBarTitleText": "记账本",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#2E7D32",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "账单",
+        "iconPath": "images/home.png",
+        "selectedIconPath": "images/home-active.png"
+      },
+      {
+        "pagePath": "pages/add/add",
+        "text": "记账",
+        "iconPath": "images/add.png",
+        "selectedIconPath": "images/add-active.png"
+      },
+      {
+        "pagePath": "pages/statistics/statistics",
+        "text": "统计",
+        "iconPath": "images/chart.png",
+        "selectedIconPath": "images/chart-active.png"
+      },
+      {
+        "pagePath": "pages/plan/plan",
+        "text": "存钱",
+        "iconPath": "images/plan.png",
+        "selectedIconPath": "images/plan-active.png"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置",
+        "iconPath": "images/setting.png",
+        "selectedIconPath": "images/setting-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

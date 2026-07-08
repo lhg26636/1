@@ -1,0 +1,151 @@
+.wrap { min-height: 100vh; background: var(--bg); padding: 20rpx; }
+
+/* ===== 账号卡片 ===== */
+.user-card {
+  display: flex; align-items: center; gap: 16rpx;
+  background: linear-gradient(135deg, var(--header-start), var(--header-mid), var(--header-end));
+  border-radius: var(--radius-lg); padding: 30rpx 28rpx; margin-bottom: 20rpx;
+  box-shadow: var(--shadow-lg);
+  position: relative; overflow: hidden;
+}
+.user-card::after {
+  content: ''; position: absolute; top: -30%; right: -15%;
+  width: 200rpx; height: 200rpx; border-radius: 50%;
+  background: rgba(255,255,255,.04);
+}
+.user-card .avatar { width: 80rpx; height: 80rpx; border-radius: 50%; flex-shrink: 0; z-index: 1; border: 3rpx solid rgba(255,255,255,.4); }
+.avatar-text { font-size: 44rpx; z-index: 1; flex-shrink: 0; }
+.user-right { flex: 1; min-width: 0; z-index: 1; display: flex; flex-direction: column; gap: 4rpx; }
+.nick-inp {
+  font-size: 32rpx; font-weight: 700; color: #fff;
+  background: transparent; display: block;
+}
+.nick-hint { font-size: 22rpx; color: rgba(255,255,255,.6); display: block; }
+.switch-account-btn {
+  font-size: 24rpx; color: #fff; background: rgba(255,255,255,.15);
+  padding: 10rpx 20rpx; border-radius: var(--radius-full); z-index: 1;
+  flex-shrink: 0;
+}
+
+/* ===== 卡片 ===== (override global .card margin for settings) */
+.card { margin: 0 0 16rpx 0; }
+
+/* ===== 卡片 ===== */
+.card {
+  background: var(--card); border-radius: var(--radius);
+  padding: 28rpx; margin-bottom: 16rpx;
+  box-shadow: var(--shadow-sm);
+  animation: fadeInUp .4s var(--ease-out) both;
+}
+.card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18rpx; }
+.card-title { font-size: 30rpx; font-weight: 700; color: var(--text); display: block; margin-bottom: 18rpx; }
+.card-add { font-size: 26rpx; color: var(--primary-light); font-weight: 600; transition: opacity .2s; }
+.card-add:active { opacity: .6; }
+
+/* ===== 操作行 ===== */
+.act {
+  display: flex; align-items: center; gap: 16rpx;
+  padding: 22rpx 0; border-bottom: 1rpx solid var(--divider);
+  transition: background .2s;
+}
+.act:active { background: var(--card-hover); margin: 0 -28rpx; padding: 22rpx 28rpx; }
+.act:last-child { border-bottom: none; padding-bottom: 0; }
+.act:first-child { padding-top: 0; }
+.act:first-child:active { margin-top: -28rpx; padding-top: 28rpx; }
+.act-icon { font-size: 36rpx; flex-shrink: 0; }
+.act-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
+.act-title { font-size: 28rpx; color: var(--text); font-weight: 500; }
+.act-desc { font-size: 22rpx; color: var(--text-hint); }
+.act-arrow { font-size: 32rpx; color: var(--text-hint); flex-shrink: 0; }
+
+/* ===== 分类标签 ===== */
+.tags { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.tag {
+  display: flex; align-items: center; gap: 8rpx;
+  padding: 10rpx 18rpx; border-radius: 8rpx;
+  font-size: 26rpx; transition: transform .2s;
+}
+.tag:active { transform: scale(.95); }
+.tag-in { background: var(--primary-bg); color: var(--primary-light); }
+.tag-out { background: var(--danger-light); color: var(--danger); }
+.tag-x { font-size: 30rpx; opacity: .35; font-weight: 300; }
+
+.btn-save {
+  width: 100%; color: #fff; border-radius: var(--radius-sm);
+  font-size: 32rpx; font-weight: 600; margin-bottom: 16rpx;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-mid));
+  box-shadow: 0 4rpx 16rpx rgba(46,125,50,.2);
+  transition: all .2s;
+}
+.btn-save:active { opacity: .85; transform: scale(.98); }
+
+/* ===== 货币设置行 ===== */
+.setting-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 22rpx 0; border-bottom: 1rpx solid var(--divider);
+  transition: background .2s;
+}
+.setting-row:active { background: var(--card-hover); margin: 0 -28rpx; padding: 22rpx 28rpx; }
+.setting-row:last-child { border-bottom: none; }
+.setting-row:last-child:active { margin-bottom: -28rpx; }
+.setting-info { display: flex; flex-direction: column; gap: 4rpx; flex: 1; min-width: 0; }
+.setting-label { font-size: 28rpx; color: var(--text); font-weight: 500; }
+.setting-hint { font-size: 22rpx; color: var(--text-hint); }
+.picker-val { font-size: 28rpx; color: var(--primary-light); font-weight: 600; }
+
+/* ===== 汇率换算器 ===== */
+.converter { display: flex; flex-direction: column; gap: 12rpx; }
+.conv-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg); border-radius: var(--radius-sm); padding: 14rpx 20rpx;
+  transition: background .2s;
+}
+.conv-row:focus-within { background: var(--card-hover); }
+.conv-pick { font-size: 28rpx; color: var(--primary-light); font-weight: 600; padding-right: 16rpx; }
+.conv-input { flex: 1; text-align: right; font-size: 30rpx; font-weight: 600; color: var(--text); background: transparent; }
+.conv-result { flex: 1; text-align: right; font-size: 32rpx; font-weight: 700; color: var(--accent); }
+.conv-eq { text-align: center; font-size: 30rpx; color: var(--text-hint); font-weight: 700; }
+
+/* ===== 弹窗 ===== */
+.mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 100; animation: fadeIn .25s var(--ease-out);
+  backdrop-filter: blur(4rpx);
+}
+.dlg {
+  position: fixed; top: 40%; left: 50%; transform: translate(-50%,-50%);
+  background: var(--card); border-radius: var(--radius-lg);
+  padding: 36rpx; width: 560rpx; z-index: 101;
+  box-shadow: var(--shadow-lg);
+  animation: scaleIn .3s var(--ease-spring);
+}
+.dlg-title { font-size: 32rpx; font-weight: 700; display: block; margin-bottom: 20rpx; }
+.dlg-inp { background: var(--bg); border-radius: var(--radius-sm); padding: 16rpx 20rpx; font-size: 28rpx; margin-bottom: 24rpx; color: var(--text); }
+.dlg-btns { display: flex; gap: 16rpx; }
+.dlg-btns button { flex: 1; font-size: 28rpx; border-radius: var(--radius-sm); padding: 12rpx 0; transition: all .2s; }
+.dlg-btns button:active { transform: scale(.96); }
+.dbtn-cancel { background: var(--divider); color: var(--text-secondary); }
+.dbtn-ok { background: var(--primary-mid); color: #fff; }
+
+/* 账本搜索 */
+.ledger-search { display: flex; align-items: center; gap: 8rpx; margin-bottom: 16rpx; background: var(--bg); border-radius: var(--radius-sm); padding: 12rpx 16rpx; }
+.ls-input { flex: 1; font-size: 26rpx; color: var(--text); }
+.ls-icon { font-size: 28rpx; flex-shrink: 0; }
+/* 账本内分割线 */
+.ledger-divider { height: 1rpx; background: var(--divider); margin: 14rpx 0 10rpx; }
+
+/* 账本删除 */
+.act-del { font-size: 28rpx; padding: 6rpx 10rpx; flex-shrink: 0; color: var(--danger); }
+.act-del:active { opacity: .6; }
+/* 恢复按钮 */
+.act-restore { font-size: 24rpx; color: var(--primary-mid); padding: 6rpx 14rpx; flex-shrink: 0; font-weight: 600; }
+.act-restore:active { opacity: .6; }
+
+/* 账本图标选择 */
+.ledger-icons { display: flex; flex-wrap: wrap; gap: 16rpx; margin-bottom: 20rpx; }
+.li-chip {
+  font-size: 36rpx; padding: 10rpx 16rpx;
+  border-radius: var(--radius-sm); border: 2rpx solid transparent;
+  transition: all .2s;
+}
+.li-on { border-color: var(--primary-mid); background: var(--primary-bg); }

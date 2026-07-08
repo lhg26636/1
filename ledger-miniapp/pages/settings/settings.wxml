@@ -1,0 +1,212 @@
+<view class="wrap {{theme === 'dark' ? 'theme-dark' : ''}}">
+  <!-- 账号卡片 -->
+  <view class="user-card">
+    <image class="avatar" src="{{activeAccount.avatarUrl}}" mode="aspectFill" wx:if="{{activeAccount && activeAccount.avatarUrl}}" />
+    <text class="avatar-text" wx:else>👤</text>
+    <view class="user-right">
+      <text class="nick-inp">{{activeAccount ? activeAccount.name : '游客模式'}}</text>
+      <text class="nick-hint">{{activeAccount ? '已登录 · ' + accountList.length + ' 个账号' : '点击注册或登录账号'}}</text>
+    </view>
+    <text class="switch-account-btn" bindtap="goSwitchAccount">{{activeAccount ? '切换' : '登录'}}</text>
+  </view>
+
+  <!-- 账本管理 + 最近删除 -->
+  <view class="card" id="ledger-section">
+    <text class="card-title">📚 账本管理</text>
+    <!-- 搜索 -->
+    <view class="ledger-search">
+      <input class="ls-input" placeholder="搜索账本..." value="{{searchLedgerQuery}}" bindinput="onSearchLedger" />
+      <text class="ls-icon">🔍</text>
+    </view>
+    <view class="act" wx:for="{{ledgers}}" wx:key="id" bindtap="switchToLedger" data-id="{{item.id}}">
+      <text class="act-icon">{{item.icon}}</text>
+      <view class="act-info">
+        <text class="act-title">{{item.name}}{{item.id === activeLedgerId ? ' ✓' : ''}}</text>
+        <text class="act-desc">{{item.id === activeLedgerId ? '当前使用中' : '点击切换'}}</text>
+      </view>
+      <text class="act-del" wx:if="{{ledgers.length > 1}}" data-id="{{item.id}}" catchtap="deleteLedgerItem">🗑</text>
+    </view>
+    <view class="act" bindtap="showAddLedger">
+      <text class="act-icon">➕</text>
+      <view class="act-info"><text class="act-title" style="color:var(--primary-light)">新建账本</text></view>
+      <text class="act-arrow">›</text>
+    </view>
+    <!-- 最近删除（集成在账本管理内） -->
+    <view class="ledger-divider"></view>
+    <text class="card-title" style="font-size:28rpx">🗑 最近删除</text>
+    <view class="act" wx:if="{{trashItems.length > 0}}" wx:for="{{trashItems}}" wx:key="id">
+      <text class="act-icon">{{item.icon || '📌'}}</text>
+      <view class="act-info">
+        <text class="act-title">{{item.category}} {{item.isIncome ? '+' : '-'}}{{item.amountFmt || item.amount}}</text>
+        <text class="act-desc">{{item.date}} · {{item.note || '无备注'}}</text>
+      </view>
+      <text class="act-restore" data-id="{{item.id}}" catchtap="restoreRecord">恢复</text>
+      <text class="act-del" data-id="{{item.id}}" catchtap="permDelete">彻底删除</text>
+    </view>
+    <view class="act" wx:if="{{trashItems.length === 0}}">
+      <text class="act-icon">📭</text>
+      <view class="act-info"><text class="act-title" style="color:var(--text-hint)">回收站为空</text></view>
+    </view>
+    <view class="act" wx:if="{{trashItems.length > 0}}" bindtap="emptyTrash">
+      <text class="act-icon">⚠️</text>
+      <view class="act-info"><text class="act-title" style="color:var(--danger)">清空回收站</text></view>
+      <text class="act-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 主题切换 -->
+  <view class="card">
+    <text class="card-title">🎨 主题设置</text>
+    <view class="setting-row">
+      <view class="setting-info">
+        <text class="setting-label">暗色模式</text>
+        <text class="setting-hint">{{theme === 'dark' ? '深邃黑金配色' : '清新绿色配色'}}</text>
+      </view>
+      <switch checked="{{theme === 'dark'}}" bindchange="onThemeChange" color="#1A1A2E" />
+    </view>
+  </view>
+
+  <!-- 存钱计划 -->
+  <view class="card">
+    <view class="act" bindtap="goPlan">
+      <text class="act-icon">🐷</text>
+      <view class="act-info">
+        <text class="act-title">存钱计划</text>
+        <text class="act-desc">365天/52周/灵活存钱法</text>
+      </view>
+      <text class="act-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 货币设置 -->
+  <view class="card">
+    <text class="card-title">💱 货币设置</text>
+
+    <!-- 多币种开关 -->
+    <view class="setting-row">
+      <view class="setting-info">
+        <text class="setting-label">多币种记账</text>
+        <text class="setting-hint">开启后记账时可选择不同货币，每笔保留原始币种</text>
+      </view>
+      <switch checked="{{multiCurrency}}" bindchange="onMultiCurrencyChange" color="#2E7D32" />
+    </view>
+
+    <!-- 默认货币 — 多币种关闭时可见 -->
+    <view class="setting-row" wx:if="{{!multiCurrency}}">
+      <view class="setting-info">
+        <text class="setting-label">默认货币</text>
+        <text class="setting-hint">所有账单统一用此货币显示</text>
+      </view>
+      <picker mode="selector" range="{{currencyNames}}" value="{{defaultCurrencyIdx}}" bindchange="onDefaultCurrencyChange">
+        <view class="picker-val">{{defaultCurrencySymbol}} {{currencyNames[defaultCurrencyIdx]}}</view>
+      </picker>
+    </view>
+
+    <!-- 基准币种 — 多币种开启时可见 -->
+    <view class="setting-row" wx:if="{{multiCurrency}}">
+      <view class="setting-info">
+        <text class="setting-label">基准币种</text>
+        <text class="setting-hint">用于计算总收入和总支出，其他币种按汇率换算</text>
+      </view>
+      <picker mode="selector" range="{{currencyNames}}" value="{{baseCurrencyIdx}}" bindchange="onBaseCurrencyChange">
+        <view class="picker-val">{{baseCurrencySymbol}} {{currencyNames[baseCurrencyIdx]}}</view>
+      </picker>
+    </view>
+
+    <!-- 显示货币符号 — 始终可见 -->
+    <view class="setting-row">
+      <view class="setting-info">
+        <text class="setting-label">显示货币符号</text>
+        <text class="setting-hint">在金额前显示货币符号（如 ¥、$）</text>
+      </view>
+      <switch checked="{{showSymbol}}" bindchange="onShowSymbolChange" color="#2E7D32" />
+    </view>
+  </view>
+
+  <!-- 汇率换算器 -->
+  <view class="card">
+    <text class="card-title">🔄 汇率换算器</text>
+    <view class="converter">
+      <view class="conv-row">
+        <picker mode="selector" range="{{currencyNames}}" value="{{convFromIdx}}" bindchange="onConvFromChange">
+          <view class="conv-pick">{{convFrom}}</view>
+        </picker>
+        <input class="conv-input" type="digit" placeholder="输入金额" value="{{convAmount}}" bindinput="onConvAmount" />
+      </view>
+      <view class="conv-eq">=</view>
+      <view class="conv-row">
+        <picker mode="selector" range="{{currencyNames}}" value="{{convToIdx}}" bindchange="onConvToChange">
+          <view class="conv-pick">{{convTo}}</view>
+        </picker>
+        <view class="conv-result">{{convResult || '0.00'}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类管理 -->
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">💰 收入分类</text>
+      <text class="card-add" data-type="income" bindtap="showAdd">+ 新增</text>
+    </view>
+    <view class="tags">
+      <view class="tag tag-in" wx:for="{{incomeCategories}}" wx:key="*this">
+        <text>{{item}}</text>
+        <text class="tag-x" data-type="income" data-name="{{item}}" bindtap="delCat">×</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="card-head">
+      <text class="card-title">💳 支出分类</text>
+      <text class="card-add" data-type="expense" bindtap="showAdd">+ 新增</text>
+    </view>
+    <view class="tags">
+      <view class="tag tag-out" wx:for="{{expenseCategories}}" wx:key="*this">
+        <text>{{item}}</text>
+        <text class="tag-x" data-type="expense" data-name="{{item}}" bindtap="delCat">×</text>
+      </view>
+    </view>
+  </view>
+
+  <button class="btn-save" bindtap="save">保存分类</button>
+
+  <!-- 数据管理 -->
+  <view class="card">
+    <text class="card-title">📦 数据管理</text>
+    <view class="act" bindtap="exportData">
+      <text class="act-icon">📤</text>
+      <view class="act-info">
+        <text class="act-title">导出数据</text>
+        <text class="act-desc">复制全部记录为 JSON 格式</text>
+      </view>
+      <text class="act-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 新增分类弹窗 -->
+  <view class="mask" wx:if="{{showAdd}}" catchtap="hideAdd"></view>
+  <view class="dlg" wx:if="{{showAdd}}">
+    <text class="dlg-title">新增{{addingType === 'income' ? '收入' : '支出'}}分类</text>
+    <input class="dlg-inp" placeholder="分类名称" value="{{newCategory}}" bindinput="onInput" focus />
+    <view class="dlg-btns">
+      <button class="dbtn-cancel" bindtap="hideAdd">取消</button>
+      <button class="dbtn-ok" bindtap="confirmAdd">确定</button>
+    </view>
+  </view>
+
+  <!-- 新建账本弹窗 -->
+  <view class="mask" wx:if="{{showLedgerAdd}}" catchtap="hideLedgerAdd"></view>
+  <view class="dlg" wx:if="{{showLedgerAdd}}">
+    <text class="dlg-title">新建账本</text>
+    <view class="ledger-icons">
+      <view class="li-chip {{newLedgerIcon === item ? 'li-on' : ''}}" wx:for="{{ledgerIcons}}" wx:key="*this" data-icon="{{item}}" bindtap="pickLedgerIcon">{{item}}</view>
+    </view>
+    <input class="dlg-inp" placeholder="账本名称" value="{{newLedgerName}}" bindinput="onLedgerNameInput" />
+    <view class="dlg-btns">
+      <button class="dbtn-cancel" bindtap="hideLedgerAdd">取消</button>
+      <button class="dbtn-ok" bindtap="confirmAddLedger">确定</button>
+    </view>
+  </view>
+</view>

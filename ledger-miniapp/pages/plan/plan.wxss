@@ -1,0 +1,77 @@
+.wrap { min-height: 100vh; background: var(--bg); padding: 24rpx 24rpx 120rpx; }
+
+/* ===== 已创建的计划 ===== */
+.section { margin-bottom: 32rpx; }
+.section-title { display: block; font-size: 30rpx; font-weight: 700; color: var(--text); margin-bottom: 16rpx; }
+.plan-list { display: flex; flex-direction: column; gap: 12rpx; }
+
+.plan-card {
+  display: flex; align-items: center; gap: 16rpx;
+  background: var(--card); border-radius: var(--radius);
+  padding: 20rpx 20rpx; box-shadow: var(--shadow-sm);
+  transition: all .2s var(--ease);
+  animation: fadeInUp .4s var(--ease-out) both;
+}
+.plan-card:active { background: var(--card-hover); transform: scale(.985); }
+.pc-icon {
+  width: 72rpx; height: 72rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pc-icon text { font-size: 30rpx; }
+.pc-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
+.pc-name { font-size: 28rpx; font-weight: 600; color: var(--text); }
+.pc-sub { font-size: 22rpx; color: var(--text-hint); }
+.pc-bar { width: 100%; height: 8rpx; background: #EEE; border-radius: 4rpx; overflow: hidden; margin-top: 4rpx; }
+.pc-fill { height: 100%; background: linear-gradient(90deg, #43A047, #66BB6A); border-radius: 4rpx; transition: width .5s var(--ease-out); }
+.pc-arrow { font-size: 28rpx; color: #ccc; flex-shrink: 0; }
+
+/* ===== 空状态 ===== */
+.empty-state { display: flex; flex-direction: column; align-items: center; padding-top: 160rpx; }
+.empty-icon { font-size: 100rpx; margin-bottom: 24rpx; }
+.empty-title { font-size: 32rpx; font-weight: 700; color: var(--text); }
+.empty-desc { font-size: 26rpx; color: var(--text-hint); margin-top: 8rpx; text-align: center; }
+
+/* ===== 浮动按钮 ===== */
+.fab {
+  position: fixed; bottom: 160rpx; right: 40rpx;
+  width: 100rpx; height: 100rpx; border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-light), var(--primary-mid));
+  color: #fff; font-size: 56rpx; font-weight: 300;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(46,125,50,.35);
+  z-index: 50; transition: all .2s var(--ease); line-height: 1;
+}
+.fab:active { transform: scale(.9); opacity: .85; }
+
+/* ===== 方法选择面板 ===== */
+.picker-mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 100; animation: fadeIn .25s;
+  backdrop-filter: blur(4rpx);
+}
+.picker-panel {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  background: var(--card); border-radius: 28rpx 28rpx 0 0;
+  z-index: 101; padding: 32rpx 24rpx 60rpx;
+  transform: translateY(100%); transition: transform .35s var(--ease-spring);
+  max-height: 70vh; overflow-y: auto;
+}
+.pp-show { transform: translateY(0); }
+.pp-title { font-size: 32rpx; font-weight: 700; display: block; margin-bottom: 20rpx; text-align: center; }
+
+.method-list { display: flex; flex-direction: column; gap: 12rpx; }
+.method-card {
+  display: flex; align-items: center; gap: 20rpx;
+  background: var(--bg); border-radius: var(--radius);
+  padding: 20rpx 20rpx; transition: all .2s var(--ease);
+}
+.method-card:active { background: var(--card-hover); transform: scale(.985); }
+.method-icon {
+  width: 72rpx; height: 72rpx; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.method-icon text { font-size: 30rpx; }
+.method-info { flex: 1; display: flex; flex-direction: column; gap: 4rpx; min-width: 0; }
+.method-title { font-size: 28rpx; font-weight: 600; color: var(--text); }
+.method-desc { font-size: 22rpx; color: var(--text-hint); line-height: 1.4; }
+.method-arrow { font-size: 28rpx; color: #ccc; flex-shrink: 0; }

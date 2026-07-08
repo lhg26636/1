@@ -1,0 +1,75 @@
+.wrap { min-height: 100vh; background: var(--bg); padding: 20rpx; }
+
+/* ===== 头部 ===== */
+.cal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10rpx 40rpx 20rpx;
+}
+.cal-arrow { font-size: 30rpx; color: var(--text-secondary); padding: 12rpx 20rpx; }
+.cal-arrow:active { color: var(--text); }
+.cal-title { font-size: 36rpx; font-weight: 800; color: var(--text); }
+
+/* ===== 周标题 ===== */
+.cal-weekdays {
+  display: flex; margin-bottom: 8rpx;
+}
+.cwd {
+  flex: 1; text-align: center; font-size: 26rpx;
+  color: var(--text-hint); padding: 10rpx 0;
+}
+
+/* ===== 日历网格 ===== */
+.cal-grid { background: var(--card); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+.cal-week { display: flex; }
+.cal-day {
+  flex: 1; aspect-ratio: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 2rpx;
+  position: relative; transition: background .2s;
+}
+.cal-day:active { background: var(--card-hover); }
+.cd-other { opacity: .3; }
+.cd-today { background: var(--primary-bg); }
+.cd-today .cd-num { color: var(--primary-light); font-weight: 800; }
+.cd-num { font-size: 28rpx; color: var(--text); }
+.cd-inc { font-size: 18rpx; color: var(--primary-mid); font-weight: 600; }
+.cd-exp { font-size: 18rpx; color: var(--danger); font-weight: 600; }
+
+/* ===== 图例 ===== */
+.cal-legend {
+  display: flex; justify-content: center; gap: 40rpx;
+  margin-top: 20rpx; font-size: 24rpx; color: var(--text-hint);
+}
+.cl-item { display: flex; align-items: center; gap: 8rpx; }
+.cl-dot { width: 16rpx; height: 16rpx; border-radius: 50%; }
+
+/* ===== 日详情弹窗 ===== */
+.cd-mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  z-index: 200; animation: fadeIn .3s;
+}
+.cd-panel {
+  position: fixed; left: 16rpx; right: 16rpx; top: 10%; bottom: 10%;
+  background: var(--card); border-radius: var(--radius-lg);
+  z-index: 201; display: flex; flex-direction: column; overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transform: scale(.9); opacity: 0; transition: all .3s var(--ease-spring);
+}
+.cd-show { transform: scale(1); opacity: 1; }
+.cdp-head {
+  display: flex; align-items: center; padding: 24rpx 20rpx 16rpx;
+  border-bottom: 1rpx solid var(--divider);
+}
+.cdp-title { font-size: 30rpx; font-weight: 700; flex: 1; color: var(--text); }
+.cdp-sum { display: flex; gap: 16rpx; font-size: 24rpx; margin-right: 16rpx; }
+.cdp-close { font-size: 30rpx; color: var(--text-hint); padding: 8rpx; }
+.cdp-list { flex: 1; padding: 8rpx 16rpx; }
+.cdp-item {
+  display: flex; align-items: center; gap: 14rpx;
+  padding: 18rpx 0; border-bottom: 1rpx solid var(--divider);
+}
+.cdpi-icon { font-size: 32rpx; width: 44rpx; flex-shrink: 0; }
+.cdpi-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2rpx; }
+.cdpi-cate { font-size: 28rpx; font-weight: 500; color: var(--text); }
+.cdpi-note { font-size: 24rpx; color: var(--text-hint); }
+.cdpi-amount { font-size: 28rpx; font-weight: 600; flex-shrink: 0; }
+.cdp-empty { text-align: center; color: var(--text-hint); padding: 60rpx 0; font-size: 26rpx; }

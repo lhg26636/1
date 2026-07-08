@@ -1,0 +1,126 @@
+<view class="wrap {{theme === 'dark' ? 'theme-dark' : ''}}">
+  <!-- 顶部图标 + 名称备注 -->
+  <view class="header-card {{editPlanId ? 'hc-edit' : ''}}">
+    <view class="edit-badge" wx:if="{{editPlanId}}">✏️ 编辑模式</view>
+    <view class="method-icon-big" style="background: {{method.color}}">
+      <text>{{method.icon}}</text>
+    </view>
+    <input class="name-input" type="text" placeholder="比如：攒钱买车" value="{{name}}" bindinput="onNameInput" />
+    <input class="note-input" type="text" placeholder="备注" value="{{note}}" bindinput="onNoteInput" />
+  </view>
+
+  <!-- 动态表单 -->
+  <view class="form-card">
+    <!-- 灵活存钱法：目标金额 -->
+    <view class="form-row" wx:if="{{id === 'flexible'}}">
+      <text class="form-label">目标金额</text>
+      <input class="form-value" type="digit" placeholder="0.00" value="{{targetAmount}}" bindinput="onTargetAmountInput" />
+    </view>
+
+    <!-- 365 / 52周：起始金额 -->
+    <view class="form-row" wx:if="{{id === '365' || id === '52week' || id === '52week-reverse'}}">
+      <text class="form-label">起始金额</text>
+      <input class="form-value" type="digit" placeholder="0.00" value="{{startAmount}}" bindinput="onStartAmountInput" />
+    </view>
+
+    <!-- 365 / 52周：增加金额 -->
+    <view class="form-row" wx:if="{{id === '365' || id === '52week'}}">
+      <text class="form-label">{{id === '365' ? '每日增加金额' : '每周增加金额'}}</text>
+      <input class="form-value" type="digit" placeholder="0.00" value="{{increment}}" bindinput="onIncrementInput" />
+    </view>
+
+    <!-- 52周逆向：减少金额 -->
+    <view class="form-row" wx:if="{{id === '52week-reverse'}}">
+      <text class="form-label">每周减少金额</text>
+      <input class="form-value" type="digit" placeholder="0.00" value="{{decrement}}" bindinput="onDecrementInput" />
+    </view>
+
+    <!-- 定额 / 12存单 / 36存单：每期存入金额 -->
+    <view class="form-row" wx:if="{{id === 'fixed' || id === '12deposit' || id === '36deposit'}}">
+      <text class="form-label">每期存入金额</text>
+      <input class="form-value" type="digit" placeholder="0.00" value="{{amount}}" bindinput="onAmountInput" />
+    </view>
+
+    <!-- 定额：重复频率 -->
+    <view class="form-row" wx:if="{{id === 'fixed'}}">
+      <text class="form-label">重复频率</text>
+      <picker mode="selector" range="{{frequencies}}" value="{{frequencyIndex}}" bindchange="onFrequencyChange">
+        <view class="picker-value">{{frequencies[frequencyIndex]}} ›</view>
+      </picker>
+    </view>
+
+    <!-- 定额：总共多少期 -->
+    <view class="form-row" wx:if="{{id === 'fixed'}}">
+      <text class="form-label">总共多少期</text>
+      <input class="form-value" type="number" placeholder="0" value="{{periods}}" bindinput="onPeriodsInput" />
+    </view>
+
+    <!-- 币种 -->
+    <view class="form-row">
+      <text class="form-label">币种</text>
+      <picker mode="selector" range="{{currencyNames}}" value="{{currencyIndex}}" bindchange="onCurrencyChange">
+        <view class="picker-value {{currencyIndex === 0 ? 'placeholder' : ''}}">
+          {{currencyNames[currencyIndex]}} ›
+        </view>
+      </picker>
+    </view>
+
+    <!-- 开始日期 -->
+    <view class="form-row">
+      <text class="form-label">开始日期</text>
+      <picker mode="date" value="{{startDate}}" bindchange="onStartDateChange">
+        <view class="picker-value">{{startDate}} ›</view>
+      </picker>
+    </view>
+
+    <!-- 截止日期（仅灵活） -->
+    <view class="form-row" wx:if="{{id === 'flexible'}}">
+      <text class="form-label">截止日期</text>
+      <picker mode="date" value="{{endDate}}" bindchange="onEndDateChange">
+        <view class="picker-value {{endDate ? '' : 'placeholder'}}">{{endDate ? endDate + ' ›' : '可不填 ›'}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 说明文字 -->
+  <text class="summary-text" wx:if="{{summary}}">{{summary}}</text>
+
+  <!-- 保存按钮 -->
+  <button class="btn-save {{editPlanId ? 'btn-update' : ''}}" bindtap="savePlan">{{editPlanId ? '更新计划' : '保存计划'}}</button>
+
+  <!-- 已有计划 -->
+  <view class="list-card" wx:if="{{plans.length > 0}}">
+    <text class="list-title">进行中的计划</text>
+    <view class="plan-item" wx:for="{{plans}}" wx:key="id">
+      <view class="plan-head">
+        <view>
+          <text class="plan-name">{{item.name || item.title}}</text>
+          <text class="plan-sub" wx:if="{{item.name}}">{{item.title}}</text>
+        </view>
+        <text class="plan-del" data-id="{{item.id}}" bindtap="deletePlan">删除</text>
+      </view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{item.percent}}%"></view>
+      </view>
+      <view class="plan-foot">
+        <text class="plan-progress">已存 {{item.saved}} / {{item.total}}（{{item.percent}}%）</text>
+        <text class="plan-save-btn" data-id="{{item.id}}" bindtap="saveOnce">存入一次</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 灵活存钱金额输入弹窗 -->
+  <view class="deposit-mask" wx:if="{{depositVisible}}" catchtap="closeDeposit"></view>
+  <view class="deposit-dlg" wx:if="{{depositVisible}}">
+    <text class="dd-title">存入金额</text>
+    <text class="dd-hint">剩余目标：{{depositPlanRemaining.toFixed(2)}}</text>
+    <view class="dd-input-row">
+      <text class="dd-symbol">¥</text>
+      <input class="dd-input" type="digit" placeholder="0.00" value="{{depositAmount}}" bindinput="onDepositAmountInput" focus />
+    </view>
+    <view class="dd-btns">
+      <button class="dd-btn-cancel" bindtap="closeDeposit">取消</button>
+      <button class="dd-btn-ok" bindtap="confirmDeposit">确认存入</button>
+    </view>
+  </view>
+</view>

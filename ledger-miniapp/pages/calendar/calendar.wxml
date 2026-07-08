@@ -1,0 +1,58 @@
+<view class="wrap {{theme === 'dark' ? 'theme-dark' : ''}}">
+  <!-- 月份切换 -->
+  <view class="cal-header">
+    <text class="cal-arrow" bindtap="prevMonth">◀</text>
+    <text class="cal-title">{{year}}年{{month}}月</text>
+    <text class="cal-arrow" bindtap="nextMonth">▶</text>
+  </view>
+
+  <!-- 周标题 -->
+  <view class="cal-weekdays">
+    <text class="cwd" wx:for="{{['日','一','二','三','四','五','六']}}" wx:key="*this">{{item}}</text>
+  </view>
+
+  <!-- 日历网格 -->
+  <view class="cal-grid">
+    <view class="cal-week" wx:for="{{weeks}}" wx:key="index">
+      <view
+        class="cal-day {{item.isOtherMonth ? 'cd-other' : ''}} {{item.isToday ? 'cd-today' : ''}}"
+        wx:for="{{item}}" wx:for-item="d" wx:key="day"
+        data-day="{{d.day}}" data-datestr="{{d.dateStr}}"
+        bindtap="tapDay"
+      >
+        <text class="cd-num">{{d.day}}</text>
+        <text class="cd-total {{d.totalClass}}" wx:if="{{d.hasData}}">{{d.totalSign}}{{d.total}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 图例 -->
+  <view class="cal-legend">
+    <view class="cl-item"><view class="cl-dot" style="background:#4CAF50"></view> 收入</view>
+    <view class="cl-item"><view class="cl-dot" style="background:#C62828"></view> 支出</view>
+  </view>
+
+  <!-- 日详情弹窗 -->
+  <view class="cd-mask" wx:if="{{showDayDetail}}" catchtap="closeDetail"></view>
+  <view class="cd-panel {{showDayDetail ? 'cd-show' : ''}}">
+    <view class="cdp-head">
+      <text class="cdp-title">{{selectedDate}} 账单</text>
+      <view class="cdp-sum">
+        <text class="income-text" wx:if="{{dayIncome > 0}}">收 {{displaySymbol}}{{dayIncome}}</text>
+        <text class="expense-text" wx:if="{{dayExpense > 0}}">支 {{displaySymbol}}{{dayExpense}}</text>
+      </view>
+      <text class="cdp-close" bindtap="closeDetail">✕</text>
+    </view>
+    <scroll-view class="cdp-list" scroll-y>
+      <view class="cdp-item" wx:for="{{dayRecords}}" wx:key="id">
+        <text class="cdpi-icon">{{item.icon}}</text>
+        <view class="cdpi-info">
+          <text class="cdpi-cate">{{item.category}}</text>
+          <text class="cdpi-note" wx:if="{{item.note}}">{{item.note}}</text>
+        </view>
+        <text class="cdpi-amount {{item.type === 'income' ? 'income-text' : 'expense-text'}}">{{item.type === 'income' ? '+' : '-'}}{{item.currencySymbol}}{{item.amountFmt}}</text>
+      </view>
+      <view class="cdp-empty" wx:if="{{dayRecords.length === 0}}">当天无记录</view>
+    </scroll-view>
+  </view>
+</view>

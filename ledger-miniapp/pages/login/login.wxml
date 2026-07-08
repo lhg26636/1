@@ -1,0 +1,67 @@
+<view class="page-root {{theme === 'dark' ? 'theme-dark' : ''}}">
+  <view class="login-wrap">
+    <!-- logo -->
+    <view class="logo-area">
+      <text class="logo-icon">📒</text>
+      <text class="logo-title">账号管理</text>
+    </view>
+
+    <!-- 当前已登录 -->
+    <view class="card" wx:if="{{activeAccount}}">
+      <text class="card-title">当前账号</text>
+      <view class="active-account">
+        <image class="aa-avatar" src="{{activeAccount.avatarUrl}}" mode="aspectFill" wx:if="{{activeAccount.avatarUrl}}" />
+        <text class="aa-avatar-text" wx:else>👤</text>
+        <view class="aa-info">
+          <text class="aa-name">{{activeAccount.name}}</text>
+          <text class="aa-status">✓ 已登录</text>
+        </view>
+      </view>
+      <view class="aa-actions">
+        <text class="aaa-btn aaa-logout" bindtap="logoutAccount">退出登录（游客模式）</text>
+      </view>
+    </view>
+
+    <!-- 游客提示 -->
+    <view class="card" wx:if="{{!activeAccount}}">
+      <text class="card-title">👋 游客模式</text>
+      <text class="guest-hint">你正在使用游客模式，数据保存在本地。<br/>注册账号后可多账号切换使用。</text>
+    </view>
+
+    <!-- 已有账号列表 -->
+    <view class="card" wx:if="{{accounts.length > 0}}">
+      <text class="card-title">{{activeAccount ? '切换账号' : '登录已有账号'}}</text>
+      <view class="account-item" wx:for="{{accounts}}" wx:key="id" bindtap="selectAccount" data-id="{{item.id}}">
+        <image class="ai-avatar" src="{{item.avatarUrl}}" mode="aspectFill" wx:if="{{item.avatarUrl}}" />
+        <text class="ai-avatar-text" wx:else>👤</text>
+        <view class="ai-info">
+          <text class="ai-name">{{item.name}}{{item.id === activeAccount.id ? ' ✓' : ''}}</text>
+        </view>
+        <text class="ai-del" data-id="{{item.id}}" catchtap="deleteAccount">🗑</text>
+      </view>
+    </view>
+
+    <!-- 创建新账号 -->
+    <view class="card" wx:if="{{showRegister || !activeAccount}}">
+      <text class="card-title">{{accounts.length === 0 ? '创建第一个账号' : '注册新账号'}}</text>
+      <view class="avatar-row">
+        <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image class="av-img" src="{{avatarUrl}}" mode="aspectFill" wx:if="{{avatarUrl}}" />
+          <text class="av-placeholder" wx:else>👤</text>
+        </button>
+        <text class="av-hint">点击选择头像</text>
+      </view>
+      <input class="name-inp" placeholder="输入昵称" value="{{newName}}" bindinput="onNameInput" />
+      <view class="import-row" bindtap="toggleImport">
+        <text class="import-check">{{importGuest ? '☑' : '☐'}}</text>
+        <text class="import-label">将游客模式记录导入此账号</text>
+      </view>
+      <button class="btn-create" bindtap="createAccount">注册并登录</button>
+    </view>
+
+    <!-- 返回 -->
+    <view class="back-row" bindtap="goBack">
+      <text class="back-text">← 返回设置</text>
+    </view>
+  </view>
+</view>

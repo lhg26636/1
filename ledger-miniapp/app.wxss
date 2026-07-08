@@ -1,0 +1,119 @@
+/* ===== 亮色主题（默认） ===== */
+page, .theme-light {
+  --primary: #2E7D32;
+  --primary-light: #388E3C;
+  --primary-mid: #66BB6A;
+  --primary-soft: #A5D6A7;
+  --primary-bg: #E8F5E9;
+
+  --accent: #FF6D00;
+  --accent-light: #FFE0B2;
+
+  --danger: #C62828;
+  --danger-light: #FFEBEE;
+
+  --bg: #F0F2F5;
+  --card: #FFFFFF;
+  --card-hover: #F8F9FA;
+  --divider: #EEEFF2;
+
+  --text: #1A1A1A;
+  --text-secondary: #6B7280;
+  --text-hint: #9CA3AF;
+
+  --header-start: #2E7D32;
+  --header-mid: #388E3C;
+  --header-end: #66BB6A;
+
+  --radius-sm: 12rpx;
+  --radius: 18rpx;
+  --radius-lg: 24rpx;
+  --radius-full: 999rpx;
+
+  --shadow-xs: 0 1rpx 4rpx rgba(0,0,0,.03);
+  --shadow-sm: 0 2rpx 12rpx rgba(0,0,0,.05);
+  --shadow: 0 4rpx 20rpx rgba(0,0,0,.06);
+  --shadow-lg: 0 8rpx 32rpx rgba(0,0,0,.08);
+
+  --ease: cubic-bezier(.4,0,.2,1);
+  --ease-spring: cubic-bezier(.34,1.56,.64,1);
+  --ease-out: cubic-bezier(0,0,.2,1);
+}
+
+page {
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  font-size: 28rpx;
+  color: var(--text);
+  padding-bottom: 120rpx;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 页面根元素 — 确保暗色背景覆盖整个页面 */
+.page-root { min-height: 100vh; background: var(--bg); }
+
+/* ===== 暗色主题 ===== */
+.theme-dark {
+  --primary: #4CAF50;
+  --primary-light: #66BB6A;
+  --primary-mid: #81C784;
+  --primary-soft: #388E3C;
+  --primary-bg: #1B3A1C;
+
+  --accent: #FF9800;
+  --accent-light: #3E2723;
+
+  --danger: #EF5350;
+  --danger-light: #3E1616;
+
+  --bg: #121212;
+  --card: #1E1E1E;
+  --card-hover: #262626;
+  --divider: #2A2A2A;
+
+  --text: #E8E8E8;
+  --text-secondary: #9E9E9E;
+  --text-hint: #757575;
+
+  --header-start: #1A1A2E;
+  --header-mid: #16213E;
+  --header-end: #0F3460;
+
+  --shadow-xs: 0 1rpx 4rpx rgba(0,0,0,.3);
+  --shadow-sm: 0 2rpx 12rpx rgba(0,0,0,.4);
+  --shadow: 0 4rpx 20rpx rgba(0,0,0,.5);
+  --shadow-lg: 0 8rpx 32rpx rgba(0,0,0,.6);
+}
+
+/* ===== 全局动画 ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24rpx); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+
+/* ===== 通用卡片 ===== */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  margin: 16rpx 20rpx;
+  padding: 28rpx;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  animation: fadeInUp .4s var(--ease-out) both;
+}
+
+/* ===== 文字颜色 ===== */
+.income-text { color: var(--primary-mid); font-weight: 700; }
+.expense-text { color: var(--danger); font-weight: 700; }

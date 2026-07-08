@@ -1,0 +1,259 @@
+<!-- ===== 页面根元素 — 暗色模式 ===== -->
+<view class="page-root {{theme === 'dark' ? 'theme-dark' : ''}}">
+  <!-- 多选模式顶部提示 -->
+  <view class="select-topbar {{selectMode ? 'stb-visible' : ''}}">
+    <text class="stb-title">已选择 {{selectedIds.length}} 项</text>
+    <text class="stb-exit" bindtap="exitSelectMode">✕ 退出</text>
+  </view>
+
+  <!-- 提醒横幅 -->
+  <view class="alert-banner {{showAlert ? 'alert-show' : ''}}" wx:if="{{alertInfo}}">
+    <view class="alert-content">
+      <text class="alert-icon">⚠️</text>
+      <view class="alert-body">
+        <text class="alert-title">本月支出偏高</text>
+        <text class="alert-desc">已支出 {{displaySymbol}}{{alertInfo.current.toFixed(2)}}，超出近{{alertInfo.months}}月均值 {{displaySymbol}}{{alertInfo.avg.toFixed(2)}} 的 {{alertInfo.percent}}%</text>
+      </view>
+    </view>
+    <view class="alert-actions">
+      <text class="alert-btn" data-mode="temp" bindtap="dismissAlert">暂时关闭</text>
+      <text class="alert-btn alert-btn-main" data-mode="month" bindtap="dismissAlert">本月不再提醒</text>
+    </view>
+  </view>
+
+  <!-- ===== 固定顶部：header + 搜索 + 过滤 ===== -->
+  <view class="sticky-top">
+
+  <!-- 头部 -->
+  <view class="header">
+    <view class="header-top">
+      <view class="ht-ledger" bindtap="goLedgerSwitch">
+        <text class="ht-ledger-icon">{{ledgerIcon}}</text>
+        <text class="ht-ledger-name">{{ledgerName}}</text>
+        <text class="ht-ledger-arrow">▾</text>
+      </view>
+      <view class="ht-actions" wx:if="{{!selectMode}}">
+        <text class="hta-btn" bindtap="toggleSearch">🔍</text>
+        <text class="hta-btn" bindtap="openCalendar">📅</text>
+      </view>
+    </view>
+    <view class="header-bar">
+      <text class="h-arrow" bindtap="prevMonth">◀</text>
+      <view class="h-center">
+        <text class="h-title">{{year}}年{{month}}月</text>
+        <text class="h-today" bindtap="goCurrent" wx:if="{{!isCurrentMonth}}">回到本月</text>
+      </view>
+      <text class="h-arrow" bindtap="nextMonth">▶</text>
+    </view>
+    <view class="h-summary">
+      <view class="hs-item">
+        <text class="hs-label">收入</text>
+        <text class="hs-val income-text">+{{displaySymbol}}{{income}}</text>
+      </view>
+      <view class="hs-divider"></view>
+      <view class="hs-item">
+        <text class="hs-label">支出</text>
+        <text class="hs-val expense-text">-{{displaySymbol}}{{expense}}</text>
+      </view>
+      <view class="hs-divider"></view>
+      <view class="hs-item">
+        <text class="hs-label">结余</text>
+        <text class="hs-val {{balanceClass}}">{{balanceSign}}{{displaySymbol}}{{balance}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar" wx:if="{{showSearch}}">
+    <input class="sb-input" placeholder="搜索分类、备注、金额..." value="{{searchQuery}}" bindinput="onSearchInput" confirm-type="search" bindconfirm="onSearchConfirm" />
+    <text class="sb-clear" wx:if="{{searchQuery}}" bindtap="clearSearch">✕</text>
+    <text class="sb-filter-toggle" bindtap="toggleFilter">{{showFilter ? '▲' : '▼'}}筛选</text>
+  </view>
+
+  <!-- 过滤面板 -->
+  <view class="filter-panel" wx:if="{{showSearch && showFilter}}">
+    <view class="fp-row">
+      <text class="fp-label">分类</text>
+      <picker mode="selector" range="{{filterCategoryList}}" value="{{filterCategoryIdx}}" bindchange="onFilterCategory">
+        <view class="fp-pick">{{filterCategoryIdx > 0 ? filterCategoryList[filterCategoryIdx] : '全部'}} ▾</view>
+      </picker>
+    </view>
+    <view class="fp-row">
+      <text class="fp-label">金额</text>
+      <view class="fp-amount-range">
+        <input class="fp-amt-input" type="digit" placeholder="最低" value="{{filterAmountMin}}" bindblur="onFilterAmountMin" />
+        <text class="fp-amt-sep">~</text>
+        <input class="fp-amt-input" type="digit" placeholder="最高" value="{{filterAmountMax}}" bindblur="onFilterAmountMax" />
+      </view>
+    </view>
+    <view class="fp-reset" bindtap="resetFilter">重置筛选</view>
+  </view>
+
+  </view>
+  <!-- ===== 固定顶部结束 ===== -->
+
+  <!-- 存钱计划 -->
+  <view class="plan-quick-card" wx:if="{{activePlans.length > 0 && !showSearch}}" bindtap="goPlan">
+    <text class="pq-icon">🐷</text>
+    <view class="pq-info">
+      <text class="pq-title">{{activePlans.length}} 个存钱计划进行中</text>
+      <text class="pq-desc">已存 {{totalSaved}}，目标 {{totalTarget}}</text>
+    </view>
+    <view class="pq-bar"><view class="pq-fill" style="width:{{overallPercent}}%"></view></view>
+    <text class="pq-arrow">›</text>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-wrap" wx:if="{{groupedRecords.length === 0}}">
+    <text class="empty-icon">{{searchQuery ? '🔍' : '📝'}}</text>
+    <text class="empty-text">{{searchQuery ? '未找到匹配账单' : '本月暂无记录'}}</text>
+    <text class="empty-hint">{{searchQuery ? '换个关键词试试' : '点击底部"记账"添加'}}</text>
+  </view>
+
+  <!-- 账单列表 -->
+  <view class="record-list" wx:else>
+    <view class="day-block" wx:for="{{groupedRecords}}" wx:for-index="dayidx" wx:key="day">
+      <view class="day-head">
+        <view class="day-left">
+          <text class="day-num">{{item.day}}</text>
+          <text class="day-wday">周{{item.weekday}}</text>
+          <view class="day-inline-stats">
+            <text class="income-text">收 {{displaySymbol}}{{item.incomeFmt}}</text>
+            <text class="expense-text">支 {{displaySymbol}}{{item.expenseFmt}}</text>
+          </view>
+        </view>
+        <view class="day-sum">
+          <text class="day-net {{item.netClass}}">计 {{item.netSign}}{{displaySymbol}}{{item.net}}</text>
+        </view>
+      </view>
+      <view class="day-items">
+        <view class="bill-row {{selectMode && selectedIds.indexOf(r.id) >= 0 ? 'bill-selected' : ''}} {{r.reimbursed ? 'bill-reimbursed' : ''}}" wx:for="{{item.items}}" wx:for-item="r" wx:for-index="idx" wx:key="id" bindtap="{{selectMode ? 'toggleSelect' : 'editRecord'}}" bindlongpress="enterSelectMode" data-id="{{r.id}}" data-dayidx="{{dayidx}}" data-idx="{{idx}}">
+          <view class="bill-check" wx:if="{{selectMode}}">
+            <view class="bill-check-circle {{selectedIds.indexOf(r.id) >= 0 ? 'check-filled' : 'check-empty'}}">
+              <text class="check-mark" wx:if="{{selectedIds.indexOf(r.id) >= 0}}">✓</text>
+            </view>
+          </view>
+          <view class="bill-left">
+            <text class="bill-icon">{{r.icon}}</text>
+            <view class="bill-info">
+              <view class="bill-cate-row">
+                <text class="bill-cate">{{r.category}}</text>
+                <text class="bill-reimburse-tag" wx:if="{{r.reimbursed}}">已报销</text>
+              </view>
+              <text class="bill-note" wx:if="{{r.note}}">{{r.note}}</text>
+            </view>
+          </view>
+          <text class="bill-amount {{r.isIncome ? 'income-text' : 'expense-text'}} {{r.reimbursed ? 'bill-amount-faded' : ''}}">{{r.isIncome ? '+' : '-'}}{{r.currencySymbol}}{{r.amountFmt}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 多选底部操作栏 -->
+  <view class="select-bar {{selectMode ? 'sb-visible' : ''}}">
+    <text class="sel-count">已选 {{selectedIds.length}} 项</text>
+    <view class="sel-actions">
+      <text class="sel-btn sel-btn-cancel" bindtap="exitSelectMode">取消</text>
+      <text class="sel-btn sel-btn-reimburse" bindtap="batchReimburse">报销</text>
+      <text class="sel-btn sel-btn-delete" bindtap="batchDelete">删除</text>
+    </view>
+  </view>
+
+  <!-- ===== 编辑弹窗 ===== -->
+  <view class="edit-mask" wx:if="{{editVisible}}" catchtap="closeEdit"></view>
+  <view class="edit-panel {{editVisible ? 'ep-show' : ''}}">
+    <view class="ep-head">
+      <text class="ep-title">编辑账单</text>
+      <text class="ep-close" bindtap="closeEdit">✕</text>
+    </view>
+    <view class="ep-switch">
+      <view class="eps-btn {{editType === 'expense' ? 'eps-expense' : ''}}" data-type="expense" bindtap="switchEditType">支出</view>
+      <view class="eps-btn {{editType === 'income' ? 'eps-income' : ''}}" data-type="income" bindtap="switchEditType">收入</view>
+    </view>
+    <view class="ep-amt-row">
+      <text class="ep-symbol">{{editSymbol}}</text>
+      <input class="ep-amt-input" type="digit" value="{{editAmount}}" bindinput="onEditAmount" />
+    </view>
+    <view class="ep-field">
+      <text class="ep-label">分类</text>
+      <picker mode="selector" range="{{editCategories}}" value="{{editCategoryIdx}}" bindchange="onEditCategory">
+        <view class="ep-pick">{{editCategoryName}} ▾</view>
+      </picker>
+    </view>
+    <view class="ep-field">
+      <text class="ep-label">日期</text>
+      <picker mode="date" value="{{editDate}}" bindchange="onEditDate">
+        <view class="ep-pick">{{editDate}} ▸</view>
+      </picker>
+    </view>
+    <view class="ep-field">
+      <text class="ep-label">备注</text>
+      <input class="ep-note-inp" value="{{editNote}}" placeholder="写点什么..." bindinput="onEditNote" />
+    </view>
+    <view class="ep-actions">
+      <button class="epa-delete" bindtap="deleteFromEdit">🗑 删除</button>
+      <button class="epa-save" bindtap="saveEdit">保存修改</button>
+    </view>
+  </view>
+
+  <!-- ===== 账本快速切换弹窗 ===== -->
+  <view class="ld-mask" wx:if="{{ledgerVisible}}" catchtap="closeLedger"></view>
+  <view class="ld-panel ld-show" wx:if="{{ledgerVisible}}">
+    <text class="ld-title">切换账本</text>
+    <view class="ld-list">
+      <view class="ld-item {{item.id === activeLedgerId ? 'ld-active' : ''}}" wx:for="{{allLedgers}}" wx:key="id" bindtap="switchLedger" data-id="{{item.id}}">
+        <text class="ld-icon">{{item.icon}}</text>
+        <view class="ld-info">
+          <text class="ld-name">{{item.name}}</text>
+          <text class="ld-stats"><text class="income-text">收{{displaySymbol}}{{item.income}}</text> <text class="expense-text">支{{displaySymbol}}{{item.expense}}</text></text>
+        </view>
+        <text class="ld-check" wx:if="{{item.id === activeLedgerId}}">✓</text>
+      </view>
+    </view>
+    <view class="ld-actions">
+      <text class="lda-btn" bindtap="goLedgerManage">⚙ 管理账本</text>
+    </view>
+  </view>
+
+  <!-- 回到顶部 -->
+  <view class="back-top {{showBackTop ? 'bt-visible' : ''}}" bindtap="scrollToTop">⬆</view>
+
+  <!-- ===== 日历弹窗 ===== -->
+  <view class="cal-modal-mask" wx:if="{{calVisible}}" catchtap="closeCalendar"></view>
+  <view class="cal-modal {{calVisible ? 'cm-show' : ''}}">
+    <view class="cm-head">
+      <view class="cm-nav-row">
+        <text class="cm-arrow" bindtap="calPrevMonth">◀</text>
+        <text class="cm-title">{{calYear}}年{{calMonth}}月</text>
+        <text class="cm-arrow" bindtap="calNextMonth">▶</text>
+      </view>
+      <view class="cm-sub-row">
+        <text class="cm-today" bindtap="calGoToday">回到今天</text>
+        <text class="cm-close" bindtap="closeCalendar">✕</text>
+      </view>
+    </view>
+    <view class="cm-weekdays">
+      <text class="cm-wd" wx:for="{{['日','一','二','三','四','五','六']}}" wx:key="*this">{{item}}</text>
+    </view>
+    <view class="cm-grid">
+      <view class="cm-week" wx:for="{{calWeeks}}" wx:key="index">
+        <view class="cm-day {{d.isOtherMonth ? 'cmd-other' : ''}} {{d.isToday ? 'cmd-today' : ''}} {{d.dateStr === calSelectedDate ? 'cmd-sel' : ''}}" wx:for="{{item}}" wx:for-item="d" wx:key="day" data-day="{{d.day}}" data-datestr="{{d.dateStr}}" bindtap="calTapDay">
+          <text class="cmd-num">{{d.day}}</text>
+          <text class="cmd-amount {{d.totalClass}}" wx:if="{{d.hasData}}">{{d.totalSign}}{{d.total}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="cm-detail" wx:if="{{calSelectedDate}}">
+      <text class="cmd-date">{{calSelectedDate}}</text>
+      <view class="cmd-item" wx:for="{{calDayRecords}}" wx:key="id" wx:if="{{calDayRecords.length > 0}}">
+        <text class="cmdi-icon">{{item.icon}}</text>
+        <view class="cmdi-info">
+          <text class="cmdi-cate">{{item.category}}</text>
+          <text class="cmdi-note" wx:if="{{item.note}}">{{item.note}}</text>
+        </view>
+        <text class="cmdi-amount {{item.isIncome ? 'income-text' : 'expense-text'}}">{{item.isIncome ? '+' : '-'}}{{item.currencySymbol}}{{item.amountFmt}}</text>
+      </view>
+      <text class="cmd-empty" wx:if="{{calDayRecords.length === 0}}">当天无记录</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,118 @@
+<view class="page-root {{theme === 'dark' ? 'theme-dark' : ''}}">
+<view class="top-bar">
+  <text class="tb-arrow" bindtap="prevMonth">◀</text>
+  <view class="tb-center">
+    <text class="tb-title">{{year}}年{{month}}月</text>
+    <text class="tb-today" bindtap="goCurrent" wx:if="{{!isCurrentMonth}}">本月</text>
+  </view>
+  <text class="tb-arrow" bindtap="nextMonth">▶</text>
+</view>
+
+<!-- 月度总览 -->
+<view class="overview-card">
+  <view class="ov-item">
+    <text class="ov-label">收入</text>
+    <text class="ov-val income-text">+{{displaySymbol}}{{totalIncome}}</text>
+  </view>
+  <view class="ov-divider"></view>
+  <view class="ov-item">
+    <text class="ov-label">支出</text>
+    <text class="ov-val expense-text">-{{displaySymbol}}{{totalExpense}}</text>
+  </view>
+  <view class="ov-divider"></view>
+  <view class="ov-item">
+    <text class="ov-label">结余</text>
+    <text class="ov-val {{totalBalanceSign === '+' ? 'income-text' : 'expense-text'}}">{{totalBalanceSign}}{{displaySymbol}}{{totalBalance}}</text>
+  </view>
+</view>
+
+<!-- 视图切换 -->
+<view class="vtabs">
+  <view class="vt {{viewMode === 'category' ? 'vt-on' : ''}}" data-mode="category" bindtap="switchView">分类排行</view>
+  <view class="vt {{viewMode === 'trend' ? 'vt-on' : ''}}" data-mode="trend" bindtap="switchView">每日趋势</view>
+</view>
+
+<!-- ===== 分类排行 ===== -->
+<block wx:if="{{viewMode === 'category'}}">
+  <view class="ttabs">
+    <view class="tt {{showType === 'expense' ? 'tt-expense' : ''}}" data-type="expense" bindtap="switchShow">支出</view>
+    <view class="tt {{showType === 'income' ? 'tt-income' : ''}}" data-type="income" bindtap="switchShow">收入</view>
+  </view>
+
+  <view class="card" wx:if="{{showType === 'expense' && expenseStats.length > 0}}">
+    <view class="stat-item" wx:for="{{expenseStats}}" wx:key="category" data-category="{{item.category}}" data-type="expense" bindtap="drillDown">
+      <view class="si-left">
+        <text class="si-icon">{{item.icon}}</text>
+        <view class="si-info">
+          <text class="si-name">{{item.category}}</text>
+          <view class="si-bar"><view class="si-fill expense-fill" style="width:{{item.percent}}%"></view></view>
+        </view>
+      </view>
+      <view class="si-right">
+        <text class="expense-text">-{{displaySymbol}}{{item.amount}}</text>
+        <text class="si-pct">{{item.percent}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{showType === 'income' && incomeStats.length > 0}}">
+    <view class="stat-item" wx:for="{{incomeStats}}" wx:key="category" data-category="{{item.category}}" data-type="income" bindtap="drillDown">
+      <view class="si-left">
+        <text class="si-icon">{{item.icon}}</text>
+        <view class="si-info">
+          <text class="si-name">{{item.category}}</text>
+          <view class="si-bar"><view class="si-fill income-fill" style="width:{{item.percent}}%"></view></view>
+        </view>
+      </view>
+      <view class="si-right">
+        <text class="income-text">+{{displaySymbol}}{{item.amount}}</text>
+        <text class="si-pct">{{item.percent}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="no-data" wx:if="{{(showType === 'expense' && expenseStats.length === 0) || (showType === 'income' && incomeStats.length === 0)}}">
+    <text>本月暂无{{showType === 'expense' ? '支出' : '收入'}}记录</text>
+  </view>
+</block>
+
+<!-- ===== 每日趋势 ===== -->
+<block wx:if="{{viewMode === 'trend'}}">
+  <view class="ttabs">
+    <view class="tt {{showType === 'expense' ? 'tt-expense' : ''}}" data-type="expense" bindtap="switchShow">支出趋势</view>
+    <view class="tt {{showType === 'income' ? 'tt-income' : ''}}" data-type="income" bindtap="switchShow">收入趋势</view>
+  </view>
+
+  <view class="card chart-card" wx:if="{{trendDays.length > 0}}">
+    <text class="ch-label">{{showType === 'expense' ? '每日支出' : '每日收入'}}（元）</text>
+    <canvas canvas-id="trendCanvas" id="trendCanvas" class="trend-canvas"></canvas>
+    <view class="ch-foot">
+      <view class="chf-item"><view class="dot" style="background:{{showType === 'expense' ? '#C62828' : '#2E7D32'}}"></view>日均 {{displaySymbol}}{{trendAvg}}</view>
+      <view class="chf-item">最高 {{displaySymbol}}{{trendMax}} · 合计 {{displaySymbol}}{{trendTotal}}</view>
+    </view>
+  </view>
+  <view class="no-data" wx:else>本月暂无{{showType === 'expense' ? '支出' : '收入'}}记录</view>
+</block>
+
+<!-- ===== 分类明细弹窗 ===== -->
+<view class="drill-mask" wx:if="{{drillVisible}}" catchtap="closeDrill" catchtouchmove="stopProp"></view>
+<view class="drill-panel" wx:if="{{drillVisible}}">
+  <view class="dp-head">
+    <text class="dp-title">{{drillCategory}} 明细</text>
+    <text class="dp-total {{drillType === 'income' ? 'income-text' : 'expense-text'}}">合计 {{drillType === 'income' ? '+' : '-'}}{{displaySymbol}}{{drillTotal}}</text>
+    <text class="dp-base-hint" wx:if="{{multiCurrency}}">（已换算为基准币种）</text>
+    <text class="dp-close" bindtap="closeDrill">✕</text>
+  </view>
+  <scroll-view class="dp-list" scroll-y>
+    <view class="dp-item" wx:for="{{drillRecords}}" wx:key="id">
+      <text class="dpi-icon">{{item.icon}}</text>
+      <view class="dpi-info">
+        <text class="dpi-date">{{item.date}}</text>
+        <text class="dpi-note" wx:if="{{item.note}}">{{item.note}}</text>
+      </view>
+      <text class="dpi-amount {{item.type === 'income' ? 'income-text' : 'expense-text'}}">{{item.type === 'income' ? '+' : '-'}}{{item.currencySymbol}}{{item.amountFmt}}</text>
+    </view>
+    <view class="dp-empty" wx:if="{{drillRecords.length === 0}}">暂无记录</view>
+  </scroll-view>
+</view>
+</view>

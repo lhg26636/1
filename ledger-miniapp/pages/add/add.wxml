@@ -1,0 +1,54 @@
+<view class="container {{theme === 'dark' ? 'theme-dark' : ''}}">
+  <!-- 类型切换 -->
+  <view class="switch-bar">
+    <view class="sw-btn {{type === 'expense' ? 'sw-expense' : ''}}" data-type="expense" bindtap="switchType">支出</view>
+    <view class="sw-btn {{type === 'income' ? 'sw-income' : ''}}" data-type="income" bindtap="switchType">收入</view>
+  </view>
+
+  <!-- 金额 -->
+  <view class="amt-box {{type === 'expense' ? 'amt-expense' : 'amt-income'}}">
+    <text class="amt-symbol">{{amountSymbol}}</text>
+    <input class="amt-input" type="digit" placeholder="0.00" value="{{amount}}" focus bindinput="onAmountInput" />
+  </view>
+
+  <!-- 多币种：货币选择 + 实时换算 -->
+  <view class="currency-section" wx:if="{{multiCurrency}}">
+    <picker mode="selector" range="{{currencyNames}}" value="{{currencyIndex}}" bindchange="onCurrencyChange">
+      <view class="currency-pick">{{currencies[currencyIndex].flag}} {{currencies[currencyIndex].name}} ({{currencies[currencyIndex].code}}) ▾</view>
+    </picker>
+    <view class="conv-preview" wx:if="{{showConversion}}">
+      ≈ {{baseSymbol}}{{convertedAmount}}
+      <text class="conv-note">（基准币种 {{baseCurrencyCode}}）</text>
+    </view>
+  </view>
+
+  <!-- 分类 -->
+  <view class="section">
+    <text class="sec-label">选择分类</text>
+    <view class="cate-grid">
+      <view
+        class="cate-chip {{activeCategory === item ? (type === 'expense' ? 'chip-expense' : 'chip-income') : ''}}"
+        wx:for="{{categories}}" wx:key="*this" data-name="{{item}}" bindtap="selectCategory">
+        <text class="chip-icon">{{categoryIcons[item] || '📌'}}</text>
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 日期 & 备注 -->
+  <view class="section">
+    <view class="field">
+      <text class="field-label">日期</text>
+      <picker mode="date" value="{{date}}" bindchange="onDateChange">
+        <text class="field-val">{{date}}  ▸</text>
+      </picker>
+    </view>
+    <view class="field">
+      <text class="field-label">备注</text>
+      <input class="field-inp" placeholder="写点什么..." value="{{note}}" bindinput="onNoteInput" />
+    </view>
+  </view>
+
+  <!-- 提交 -->
+  <button class="submit {{type === 'income' ? 'sub-income' : 'sub-expense'}}" disabled="{{!canSubmit}}" bindtap="submit">记一笔</button>
+</view>
